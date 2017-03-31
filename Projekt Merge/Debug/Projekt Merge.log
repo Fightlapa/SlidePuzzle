@@ -1,0 +1,3 @@
+﻿  Projekt Merge.cpp
+c:\_studia\_4 semestr\si\projekt merge\projekt merge\projekt merge.cpp(22): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Projekt Merge.vcxproj -> C:\_Studia\_4 semestr\SI\Projekt Merge\Debug\Projekt Merge.exe
