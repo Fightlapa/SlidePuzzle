@@ -1,18 +1,14 @@
 #pragma once
-#define BOARDSIZE		20
+extern int BOARDSIZE; // rozmiar tablicy
+extern int ABANDON; // czy mo¿e  porzucaæ ga³êzie, gdy inna by³a lepiej rokuj¹ca
+extern int SHOWHELP;// czy pokazywaæ krok po kroku
+extern int STOPOWANIE;// czy pokazywaæ krok po kroku
 
+#define KOGNIYPOS       25
+//które algorytmy
 
-#define WAITFORSTART	0
+//JabolSpecific
 
-#define MOVEBYMOVE		0
-#define TESTCONSTWIN	1
-
-#define INPUTPRIORITY	0
-#define INPUTBOARD		0
-
-
-#define SHOWHELP		0
-#define SHOWBOARD		0
-
+ 
 
 void gotoxy(int x, int y);

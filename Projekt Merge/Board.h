@@ -1,14 +1,18 @@
 #pragma once
 #include "Pos.h"
-class board
+class Board
 {
 public:
 	int ** tab;
 	int ** copyOfOriginal;
+	int priority;
+	bool operator<(const Board& rhs) const;
 	pos posOfZero;
 	int size;
 	int timesMoved;
-	board(int size);
+	Board(int size);
+	Board();
+	~Board();
 	bool move(int dy, int dx);
 	bool move(pos dir);
 	void display(int xx, int yy);
@@ -25,7 +29,6 @@ private:
 	void makeACopy();
 	void riskyShuffle();
 	bool isSolvable();
-	~board();
 
 	bool isPossible(int y, int x);
 	bool mySwap(int y, int x, int ny, int nx);

@@ -5,7 +5,7 @@ class helper {
 private:
 	int currentPriority;
 	int prioIndex;
-	board * b;
+	Board * b;
 	bool * states;
 	int * priorities;
 	bool * tabOfVerticalNeeds = {};
@@ -52,11 +52,12 @@ public:
 
 	bool won = false;
 	void reset();
-
-	helper(board * b);
+	helper();
+	helper(Board * b);
 	bool checkForWin();
 	void display();
 	void displayHelp();
+	void solve();
 	void help();
 	void act();
 };

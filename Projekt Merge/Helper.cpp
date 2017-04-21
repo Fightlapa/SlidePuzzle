@@ -6,6 +6,17 @@
 #include <conio.h>
 
 
+void helper::solve()
+{
+	std::cout << "Algorytm Kognitywistyczny rozpoczyna pracÍ." << std::endl;
+	while (won == false)
+	{
+	help();
+	display();
+	act();
+	}			
+}
+
 void helper::createPriorityList()
 {
 	const int SIZE = b->size;
@@ -69,9 +80,10 @@ bool helper::checkForImpassC()
 	int sizeSq = b->size*b->size;
 	int min = sizeSq - (b->size - 3);
 	for (min;min < sizeSq;min++)
-	{//nie biorÍ pod uwagÍ odpowiednika 15 w 4na4 dla 5na5, niedoskona≥y wzÛr
+	{
 		if (states[min] == true && won == false && b->getValueAtIndex(min) == min)
 		{//
+			impass = 'C';
 			goFarRight();
 			resolveImpassC(min);
 			return 1;
@@ -81,21 +93,29 @@ bool helper::checkForImpassC()
 }
 bool helper::checkForImpassA()
 {
-	int c;
-	int r;
-	for (r = 1; r <= b->size - 1; r++)
+	//gotoxy(1, KOGNIYPOS);
+	//b->display();
+	int c = b->posOfZero.x;
+	int r = b->posOfZero.y;
+	if (r - 1 >= 0 && c + 1 < b->size)
 	{
-		for (c = 1; c < b->size - 1; c++)
-		{
-			if (b->posOfZero == pos{ r,c }
-
-				&&	states[b->getNumber(r + -1, c + 1)] == 0//ten w rogu musi byÊ úmieciem
-				&& states[b->getNumber(r + 0, c + 1)] == 1
-				&& states[b->tab[r - 1][c + 0]] == 1)
-				return true;
-		}
+		if (states[b->getNumber(r + -1, c + 1)] == 1)
+			return false;
 	}
-	return false;
+	else return false;
+	//szukamy jakiejkolwiek luki u gÛry
+	for (int i = r - 1; i >= 0; i--)//moøliwa mikrooptymalizacja do i > r - 3, powinno styknπÊ sprawdziÊ 2 w gÛrÍ(ostroønie z 0???)
+	{
+		if (states[b->getNumber(i, c)] == 0)//jest luka, to tam idü
+			return false;
+	}
+	//szukamy jakiejkolwiek luki u w prawo
+	for (int i = c + 1; i < b->size; i++)
+	{
+		if (states[b->getNumber(r, i)] == 0)//jest luka, to tam idü
+			return false;
+	}
+	return true;
 }
 bool helper::checkForImpassB()
 {
@@ -214,11 +234,11 @@ pos helper::findSimpleMove()
 }
 void helper::displayStates()
 {
-	for (int i = 0; i <= b->size*b->size; i++)
+	std::cout << "tablica gotowych pÛl: ";
+	for (int i = 1; i <= b->size*b->size; i++)
 	{
 		std::cout << states[i];
 	}
-	std::cout << std::endl;
 }
 void helper::resolveImpassA()
 {
@@ -228,8 +248,9 @@ void helper::resolveImpassA()
 	int moves[9] = { LEFT,UP,RIGHT,RIGHT,DOWN,LEFT,UP,LEFT,DOWN };
 	for (int i = 0; i < num; i++)
 	{
-		display();
 		b->move(pos::keyToDelta(moves[i]));
+		if(i!=num-1)
+		display();
 	}
 
 }
@@ -241,8 +262,9 @@ void helper::resolveImpassB()
 	int moves[9] = { UP,RIGHT,DOWN,RIGHT,UP,LEFT,LEFT,DOWN };
 	for (int i = 0; i < num; i++)
 	{
-		display();
 		b->move(pos::keyToDelta(moves[i]));
+		if (i != num - 1)
+			display();
 
 	}
 
@@ -257,29 +279,27 @@ void helper::resolveImpassC(int wkrecana)//wkrÍcanie '15'
 	pos position = b->getNumberToCord(wkrecana);
 	if (b->getNumber(position.y, position.x + 1) == 0)
 	{
-		display();
 		b->move(pos::keyToDelta(LEFT));
+			display();
 		return;
 	}
 
 	if (b->getNumber(position.y, position.x - 1) == 0)
 	{
-		display();
 		b->move(pos::keyToDelta(UP));
-
-
 		display();
+
 		b->move(pos::keyToDelta(RIGHT));
+		display();
 
 	}
 	const int num = 9;
 	int moves[9] = { UP,RIGHT,DOWN,DOWN,LEFT,UP,RIGHT,UP,LEFT };
 	for (int i = 0; i < num; i++)
 	{
-		display();
 		b->move(pos::keyToDelta(moves[i]));
-
-
+		if (i != num - 1)
+			display();
 	}
 }
 
@@ -302,6 +322,7 @@ bool helper::areThereAnyImpasses()
 
 void helper::reset()
 {
+	b->shuffle();
 	won = false;
 	tempSideX = 0;
 	tempSideY = 0;
@@ -313,7 +334,11 @@ void helper::reset()
 	currentPriority = findPriority();
 }
 
-helper::helper(board * b)
+helper::helper()
+{
+}
+
+helper::helper(Board * b)
 {
 	this->b = b;
 	int sizeSq = b->size*b->size;
@@ -332,13 +357,17 @@ bool helper::checkForWin()
 }
 void helper::display()
 {
-	gotoxy(1, 2);
-	if (MOVEBYMOVE)
-		_getch();
-	if (SHOWBOARD)
-		b->display();
 	if (SHOWHELP)
+	{
+		gotoxy(1, KOGNIYPOS);
+		b->display();		
+		gotoxy(1, KOGNIYPOS+BOARDSIZE*2);
 		displayHelp();
+		if (won)return;
+		if(STOPOWANIE)
+		_getch();
+	}
+
 }
 void helper::displayHelp()
 {
@@ -346,27 +375,31 @@ void helper::displayHelp()
 
 	if (won)
 	{
-		std::cout << "WIN WIN WIN\t\t\t" << std::endl;
-		for (int i = 0; i < 10; i++)
+		std::cout << "Wygrana!                                                 "<< std::endl;
+		for (int i = 0; i < 5; i++)
 		{
-			std::cout << "\t\t\t\t\t\t " << std::endl;
+			std::cout << "                                                      "<< std::endl;
 		}
 		return;
 	}
-	std::cout << "handle\t\t: " << currentPriority << "\t" << std::endl;
-	std::cout << "it is at\t: " << currentPos << "\t" << std::endl;
-	std::cout << "it should be at\t: " << desiredPos << "\t" << std::endl;
-	std::cout << "difference is\t: " << deltaPos << "\t" << std::endl;
-	std::cout << "move it\t\t: " << dirPos << "\t" << std::endl;
-	std::cout << "blank is at\t: " << b->posOfZero << "\t" << std::endl;
-	std::cout << "blank sh be at\t: " << blankDesiredPos << "\t" << std::endl;
-	std::cout << "difference is\t: " << blankDeltaPos << "\t" << std::endl;
-	std::cout << "X - " << (tempSideX ? "true" : "false") << "\t" << std::endl;
-	std::cout << "Y - " << (tempSideY ? "true" : "false") << "\t" << std::endl;
-	std::cout << "lata" << lata << "\t" << std::endl;
-	std::cout << ((char)impass != '0' ? "IMPASS " : "        ") << (char)impass << std::endl;
+	std::cout << "obecnie ustawiany : " << currentPriority << "    " << std::endl;
+	//std::cout << "it is at\t: " << currentPos << "\t" << std::endl;
+	//std::cout << "it should be at\t: " << desiredPos << "\t" << std::endl;
+	//std::cout << "difference is\t: " << deltaPos << "\t" << std::endl;
+	//std::cout << "move it\t\t: " << dirPos << "\t" << std::endl;
+	//std::cout << "blank is at\t: " << b->posOfZero << "\t" << std::endl;
+	//std::cout << "blank sh be at\t: " << blankDesiredPos << "\t" << std::endl;
+	//std::cout << "difference is\t: " << blankDeltaPos << "\t" << std::endl;
+	//std::cout << "X - " << (tempSideX ? "true" : "false") << "\t" << std::endl;
+	//std::cout << "Y - " << (tempSideY ? "true" : "false") << "\t" << std::endl;
+	//std::cout << "lata" << lata << "\t" << std::endl;
 	displayStates();
-	std::cout << nextMove.toString() << "\t" << std::endl;
+	std::cout << std::endl;
+	if ((char)impass != '0')
+		std::cout << "impass: " << (char)impass <<"                        " <<std::endl;
+	else
+		std::cout << "next move will be " << nextMove.toString() << "  " << std::endl;
+	//
 
 }
 

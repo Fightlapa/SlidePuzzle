@@ -5,7 +5,7 @@
 #include "Config.h"
 #include <fstream>
 
-	board::board(int size)
+	Board::Board(int size)
 	{
 		this->size = size;
 		tab = new int*[size];
@@ -17,12 +17,21 @@
 		}
 		shuffle();
 	}
-	bool board::move(int dy, int dx)//by d
+	Board::Board() {};
+	Board::~Board()
+	{
+		/*for (int i = 0; i < 3; i++)
+		{
+			delete tab[i];
+		}
+		delete tab;*/
+	}
+	bool Board::move(int dy, int dx)//by d
 	{
 		pos dir = { dy,dx };
 		return move(dy, dx);
 	}
-	bool board::move(pos dir)//z perspektywy 0;
+	bool Board::move(pos dir)//z perspektywy 0;
 	{
 		timesMoved++;
 		if (mySwap(posOfZero.y, posOfZero.x, posOfZero.y + dir.y, posOfZero.x + dir.x))
@@ -32,7 +41,7 @@
 		}
 		return false;
 	}
-	void board::display(int xx, int yy)
+	void Board::display(int xx, int yy)
 	{
 		gotoxy(xx, yy);
 		for (int y = 0; y < size; y++)
@@ -46,7 +55,7 @@
 			gotoxy(xx, yy + y + 1);
 		}
 	}
-	void board::display()
+	void Board::display()
 	{
 		for (int y = 0; y < size; y++)
 		{
@@ -54,18 +63,18 @@
 			{
 				if (tab[y][x] != 0)
 					std::cout << tab[y][x] << "\t";
-				else std::cout << "\t";
+				else std::cout << "   \t";
 			}
 			std::cout << std::endl;
 			std::cout << std::endl;
 		}
 		std::cout << std::endl;
 	}
-	int board::getCordToNumber(int y, int x)
+	int Board::getCordToNumber(int y, int x)
 	{
 		return y*size + x + 1;
 	}
-	pos board::getNumberToCord(int number)
+	pos Board::getNumberToCord(int number)
 	{
 		number--;
 		pos wynik;
@@ -73,17 +82,17 @@
 		wynik.x = number % size;
 		return wynik;
 	}
-	int board::getNumber(pos pos) {
+	int Board::getNumber(pos pos) {
 		return tab[pos.y][pos.x];
 	}
-	int board::getNumber(int y, int x) {
+	int Board::getNumber(int y, int x) {
 		return tab[y][x];
 	}
-	int board::getValueAtIndex(int pos)
+	int Board::getValueAtIndex(int pos)
 	{
 		return getNumber(getNumberToCord(pos));
 	}
-	pos board::findPosOf(int number)
+	pos Board::findPosOf(int number)
 	{
 		pos p;
 		for (int y = 0; y < size; y++)
@@ -100,10 +109,10 @@
 		}
 	}
 
-	void board::shuffle()
+	void Board::shuffle()
 	{
 		timesMoved = 0;
-		if (INPUTBOARD)
+		/*if (INPUTBOARD)
 		{
 			for (int y = 0; y < size; y++)
 			{
@@ -113,7 +122,7 @@
 				}
 			}
 		}
-		else
+		else*/
 		{
 			bool solvable = false;
 			while (solvable == false)
@@ -126,7 +135,7 @@
 		//makeACopy();
 		//display();
 	}
-	void board::saveCopyToFile(std::ofstream &myfile)
+	void Board::saveCopyToFile(std::ofstream &myfile)
 	{
 
 		for (int y = 0; y < size; y++)
@@ -143,7 +152,7 @@
 
 	}
 
-	void board::makeACopy()
+	void Board::makeACopy()
 	{
 		for (int y = 0; y < size; y++)
 		{
@@ -153,7 +162,7 @@
 			}
 		}
 	}
-	void board::riskyShuffle()
+	void Board::riskyShuffle()
 	{
 		int * nums = new int[size*size];
 		for (int i = 0; i < size*size; i++)
@@ -175,7 +184,7 @@
 		}
 		delete[] nums;
 	}
-	bool board::isSolvable()
+	bool Board::isSolvable()
 	{
 		int inversions = 0;
 		for (int y = 0; y < size; y++)
@@ -212,27 +221,25 @@
 		}
 	}
 
-	board::~board()
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			delete tab[i];
-		}
-		delete tab;
-	}
 
 
-	bool board::isPossible(int y, int x)
+	bool Board::isPossible(int y, int x)
 	{
 		if (x >= 0 && x < size && y >= 0 && y < size)
 			return true;
 		else
 			return false;
 	}
-	bool board::mySwap(int y, int x, int ny, int nx)//newy
+	bool Board::mySwap(int y, int x, int ny, int nx)//newy
 	{
 		if (isPossible(ny, nx) == false)
 			return false;
 		std::swap(tab[y][x], tab[ny][nx]);
 		return true;
+	}
+	bool Board::operator<(const Board& rhs) const
+	{
+		if (this->priority - rhs.priority == 0)
+			return false;
+		return this->priority > rhs.priority;
 	}
